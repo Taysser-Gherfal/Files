@@ -25,12 +25,6 @@ namespace Files.Views
         private BundlesWidget bundlesWidget;
         private RecentFilesWidget recentFilesWidget;
 
-        public YourHomeViewModel ViewModel
-        {
-            get => (YourHomeViewModel)DataContext;
-            set => DataContext = value;
-        }
-
         public WidgetsPage()
         {
             InitializeComponent();
@@ -38,6 +32,12 @@ namespace Files.Views
             ViewModel = new YourHomeViewModel(Widgets.ViewModel, AppInstance);
             ViewModel.YourHomeLoadedInvoked += ViewModel_YourHomeLoadedInvoked;
             Widgets.ViewModel.WidgetListRefreshRequestedInvoked += ViewModel_WidgetListRefreshRequestedInvoked;
+        }
+
+        public YourHomeViewModel ViewModel
+        {
+            get => (YourHomeViewModel)DataContext;
+            set => DataContext = value;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -52,6 +52,20 @@ namespace Files.Views
         private void ViewModel_WidgetListRefreshRequestedInvoked(object sender, EventArgs e)
         {
             ReloadWidgets();
+        }
+
+        private void ViewModel_YourHomeLoadedInvoked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            // We must change the associatedInstance because only now it has loaded and not null
+            ViewModel.ChangeAppInstance(AppInstance);
+            ReloadWidgets();
+        }
+
+        private void FolderWidget_FolderWidgethowMultiPaneControlsInvoked(object sender, EventArgs e)
+        {
+            FolderWidget FolderWidget = sender as FolderWidget;
+
+            FolderWidget.ShowMultiPaneControls = AppInstance.PaneHolder?.IsMultiPaneEnabled ?? false;
         }
 
         private void ReloadWidgets()
@@ -100,19 +114,6 @@ namespace Files.Views
             }
         }
 
-        private void ViewModel_YourHomeLoadedInvoked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            // We must change the associatedInstance because only now it has loaded and not null
-            ViewModel.ChangeAppInstance(AppInstance);
-            ReloadWidgets();
-        }
-
-        private void FolderWidget_FolderWidgethowMultiPaneControlsInvoked(object sender, EventArgs e)
-        {
-            FolderWidget FolderWidget = sender as FolderWidget;
-
-            FolderWidget.ShowMultiPaneControls = AppInstance.PaneHolder?.IsMultiPaneEnabled ?? false;
-        }
 
         private async void RecentFilesWidget_RecentFileInvoked(object sender, UserControls.PathNavigationEventArgs e)
         {
